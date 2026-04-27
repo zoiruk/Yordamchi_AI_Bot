@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zoir UK Verification</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--tg-theme-bg-color, #ffffff);
+      color: var(--tg-theme-text-color, #000000);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--tg-theme-button-color, #3390ec);
+    }
+
+    .header p {
+      font-size: 14px;
+      color: var(--tg-theme-hint-color, #999999);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--tg-theme-text-color, #000000);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+      border-radius: 12px;
+      background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
+      color: var(--tg-theme-text-color, #000000);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--tg-theme-button-color, #3390ec);
+    }
+
+    .form-group select {
+      cursor: pointer;
+    }
+
+    .status-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .status-card {
+      padding: 16px 12px;
+      border: 2px solid var(--tg-theme-hint-color, #e0e0e0);
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
+    }
+
+    .status-card:hover {
+      border-color: var(--tg-theme-button-color, #3390ec);
+    }
+
+    .status-card.selected {
+      border-color: var(--tg-theme-button-color, #3390ec);
+      background-color: var(--tg-theme-button-color, #3390ec);
+      color: var(--tg-theme-button-text-color, #ffffff);
+    }
+
+    .status-card .icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .status-card .label {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-primary {
+      background-color: var(--tg-theme-button-color, #3390ec);
+      color: var(--tg-theme-button-text-color, #ffffff);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .error-message {
+      background-color: #ff4444;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .success-message {
+      background-color: #00C851;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .info-box {
+      background-color: var(--tg-theme-secondary-bg-color, #f5f5f5);
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .info-box p {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--tg-theme-text-color, #000000);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--tg-theme-hint-color, #e0e0e0);
+      border-top-color: var(--tg-theme-button-color, #3390ec);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Загрузка...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="hidden">
+      <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <!-- Success State -->
+    <div id="successState" class="hidden">
+      <div class="success-message" id="successMessage"></div>
+    </div>
+
+    <!-- Main Form -->
+    <div id="mainForm" class="hidden">
+      <div class="header">
+        <h1>🇬🇧 Zoir UK Verification</h1>
+        <p>Анкета сезонного рабочего</p>
+      </div>
+
+      <div class="info-box">
+        <p>⚠️ <strong>Важно:</strong> Если вы еще не были в Британии, верификация будет отклонена. Вы сможете пройти её снова через 30 дней.</p>
+      </div>
+
+      <form id="verificationForm">
+        <!-- Status Selection -->
+        <div class="form-group">
+          <label>Ваш статус</label>
+          <div class="status-cards">
+            <div class="status-card" data-status="in_uk">
+              <div class="icon">🇬🇧</div>
+              <div class="label">В Британии</div>
+            </div>
+            <div class="status-card" data-status="at_home">
+              <div class="icon">🏠</div>
+              <div class="label">Дома</div>
+            </div>
+            <div class="status-card" data-status="waiting">
+              <div class="icon">⏳</div>
+              <div class="label">Жду спонсора</div>
+            </div>
+          </div>
+          <input type="hidden" id="status" name="status" required>
+        </div>
+
+        <!-- Farm Name -->
+        <div class="form-group">
+          <label for="farm">Название фермы</label>
+          <input type="text" id="farm" name="farm" placeholder="Например: Halls Gap" required>
+        </div>
+
+        <!-- Operator -->
+        <div class="form-group">
+          <label for="operator">Оператор (агентство)</label>
+          <input type="text" id="operator" name="operator" placeholder="Например: Concordia" required>
+        </div>
+
+        <!-- Seasons Count -->
+        <div class="form-group">
+          <label for="seasons">Количество сезонов</label>
+          <select id="seasons" name="seasons" required>
+            <option value="" disabled selected>Выберите вариант</option>
+            <option value="1">1 сезон</option>
+            <option value="2">2 сезона</option>
+            <option value="3">3 сезона</option>
+            <option value="4+">4+ сезона</option>
+          </select>
+        </div>
+
+        <!-- Special Option for First-Timers -->
+        <div class="form-group" style="margin-top: 30px;">
+          <label>Еще не были в Британии?</label>
+          <button type="button" id="notInUkBtn" class="btn" style="background-color: #ff4444; color: white;">
+            ❌ Я еще не был в Британии
+          </button>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submitBtn" class="btn btn-primary" disabled>
+          ✅ Отправить заявку
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Telegram Web App
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    // Get user ID from URL or Telegram WebApp
+    const urlParams = new URLSearchParams(window.location.search);
+    let userId = urlParams.get('user_id');
+    
+    if (!userId && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      userId = tg.initDataUnsafe.user.id;
+    }
+
+    // DOM Elements
+    const loadingEl = document.getElementById('loading');
+    const errorStateEl = document.getElementById('errorState');
+    const errorMessageEl = document.getElementById('errorMessage');
+    const successStateEl = document.getElementById('successState');
+    const successMessageEl = document.getElementById('successMessage');
+    const mainFormEl = document.getElementById('mainForm');
+    const form = document.getElementById('verificationForm');
+    const statusCards = document.querySelectorAll('.status-card');
+    const statusInput = document.getElementById('status');
+    const submitBtn = document.getElementById('submitBtn');
+    const notInUkBtn = document.getElementById('notInUkBtn');
+
+    // Check if user is already verified
+    async function checkVerificationStatus() {
+      try {
+        // In a real implementation, you would call your Google Apps Script API
+        // For now, we'll just show the form
+        loadingEl.classList.add('hidden');
+        mainFormEl.classList.remove('hidden');
+      } catch (error) {
+        showError('Ошибка загрузки данных');
+      }
+    }
+
+    // Show error message
+    function showError(message) {
+      loadingEl.classList.add('hidden');
+      mainFormEl.classList.add('hidden');
+      errorStateEl.classList.remove('hidden');
+      errorMessageEl.textContent = message;
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      loadingEl.classList.add('hidden');
+      mainFormEl.classList.add('hidden');
+      successStateEl.classList.remove('hidden');
+      successMessageEl.textContent = message;
+      
+      // Close after delay
+      setTimeout(() => {
+        tg.close();
+      }, 2000);
+    }
+
+    // Handle status card selection
+    statusCards.forEach(card => {
+      card.addEventListener('click', () => {
+        statusCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        statusInput.value = card.dataset.status;
+        submitBtn.disabled = false;
+      });
+    });
+
+    // Handle "Not in UK" button
+    notInUkBtn.addEventListener('click', async () => {
+      if (!userId) {
+        showError('Ошибка: не найден ID пользователя');
+        return;
+      }
+
+      try {
+        loadingEl.classList.remove('hidden');
+        mainFormEl.classList.add('hidden');
+
+        // Send data to Google Apps Script
+        const response = await fetch('YOUR_WEB_APP_URL', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'not_in_uk',
+            user_id: userId
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.ok) {
+          showSuccess('❌ Верификация отклонена. Вы можете попробовать снова через 30 дней.');
+        } else {
+          showError(result.message || 'Ошибка при отправке данных');
+        }
+      } catch (error) {
+        showError('Ошибка сети. Попробуйте позже.');
+      }
+    });
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!userId) {
+        showError('Ошибка: не найден ID пользователя');
+        return;
+      }
+
+      const formData = {
+        action: 'verify',
+        user_id: userId,
+        status: statusInput.value,
+        farm: document.getElementById('farm').value,
+        operator: document.getElementById('operator').value,
+        seasons: document.getElementById('seasons').value
+      };
+
+      // Validate
+      if (!formData.status || !formData.farm || !formData.operator || !formData.seasons) {
+        showError('Пожалуйста, заполните все поля');
+        return;
+      }
+
+      try {
+        loadingEl.classList.remove('hidden');
+        mainFormEl.classList.add('hidden');
+
+        // Send data to Google Apps Script
+        const response = await fetch('YOUR_WEB_APP_URL', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.ok) {
+          showSuccess('✅ Верификация пройдена! Теперь вы можете писать в группе.');
+        } else {
+          showError(result.message || 'Ошибка при отправке данных');
+        }
+      } catch (error) {
+        showError('Ошибка сети. Попробуйте позже.');
+      }
+    });
+
+    // Set theme colors
+    document.documentElement.style.setProperty('--tg-theme-bg-color', tg.backgroundColor || '#ffffff');
+    document.documentElement.style.setProperty('--tg-theme-text-color', tg.textColor || '#000000');
+    document.documentElement.style.setProperty('--tg-theme-button-color', tg.buttonColor || '#3390ec');
+    document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.buttonTextColor || '#ffffff');
+    document.documentElement.style.setProperty('--tg-theme-hint-color', tg.hintColor || '#999999');
+    document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.secondaryBackgroundColor || '#f5f5f5');
+
+    // Start
+    checkVerificationStatus();
+  </script>
+</body>
+</html>
