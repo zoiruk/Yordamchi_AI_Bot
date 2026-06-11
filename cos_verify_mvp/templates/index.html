@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoS Verify - Проверка Certificate of Sponsorship</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        
+        .card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background: #764ba2;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .features {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .features h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ CoS Verify</h1>
+            <p>Платформа проверки подлинности Certificate of Sponsorship</p>
+        </header>
+        
+        <div class="cards">
+            <div class="card">
+                <h2>👤 Для работников</h2>
+                <p>Проверьте, принадлежит ли ваш CoS действительно вам. Защитите себя от мошенников.</p>
+                <a href="/verify" class="btn">Проверить CoS</a>
+            </div>
+            
+            <div class="card">
+                <h2>🏢 Для спонсоров</h2>
+                <p>Загрузите свои выданные CoS и защитите свою репутацию от мошенничества.</p>
+                <a href="/sponsor" class="btn">Загрузить данные</a>
+            </div>
+        </div>
+        
+        <div class="features">
+            <h2>Как это работает?</h2>
+            <ul class="feature-list">
+                <li><strong>Безопасность данных:</strong> Персональные данные хранятся только в захешированном виде</li>
+                <li><strong>Мгновенная проверка:</strong> Работники могут проверить свой CoS за секунды</li>
+                <li><strong>Защита от мошенничества:</strong> Выявление поддельных документов формата A4</li>
+                <li><strong>Соответствие GDPR:</strong> Полное соблюдение требований защиты данных</li>
+                <li><strong>Доверие спонсоров:</strong> Лицензированные работодатели контролируют свои CoS</li>
+            </ul>
+            
+            <div class="warning">
+                <strong>⚠️ Важно:</strong> Если проверка показывает, что CoS выдан другому человеку - 
+                вы стали жертвой мошенничества. Не отправляйте деньги и обратитесь в полицию.
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2024 CoS Verify. Защита сезонных рабочих Великобритании от мошенничества.</p>
+        </footer>
+    </div>
+</body>
+</html>

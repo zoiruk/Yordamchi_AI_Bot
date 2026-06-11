@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка CoS - CoS Verify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #764ba2;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+        
+        .result.warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+        
+        .result.danger {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .spinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner::after {
+            content: "";
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 Проверка CoS</h1>
+            <p>Убедитесь, что ваш Certificate of Sponsorship подлинный</p>
+        </header>
+        
+        <div class="card">
+            <div class="info-box">
+                <strong>ℹ️ Информация:</strong> Введите данные точно так, как они указаны в вашем документе CoS.
+            </div>
+            
+            <form id="verifyForm">
+                <div class="form-group">
+                    <label for="cos_number">Номер CoS *</label>
+                    <input type="text" id="cos_number" name="cos_number" required placeholder="Например: ABC123456">
+                </div>
+                
+                <div class="form-group">
+                    <label for="first_name">Имя (как в паспорте) *</label>
+                    <input type="text" id="first_name" name="first_name" required placeholder="Например: IVAN">
+                </div>
+                
+                <div class="form-group">
+                    <label for="last_name">Фамилия (как в паспорте) *</label>
+                    <input type="text" id="last_name" name="last_name" required placeholder="Например: PETROV">
+                </div>
+                
+                <div class="form-group">
+                    <label for="passport">Номер паспорта (необязательно)</label>
+                    <input type="text" id="passport" name="passport" placeholder="Например: AB1234567">
+                </div>
+                
+                <div class="form-group">
+                    <label for="date_of_birth">Дата рождения (необязательно)</label>
+                    <input type="date" id="date_of_birth" name="date_of_birth">
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">Проверить CoS</button>
+            </form>
+            
+            <div class="spinner" id="spinner"></div>
+            
+            <div class="result" id="result"></div>
+        </div>
+        
+        <a href="/" class="back-link">← Вернуться на главную</a>
+    </div>
+    
+    <script>
+        document.getElementById('verifyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            const resultDiv = document.getElementById('result');
+            
+            // Получение данных формы
+            const formData = {
+                cos_number: document.getElementById('cos_number').value.trim(),
+                first_name: document.getElementById('first_name').value.trim(),
+                last_name: document.getElementById('last_name').value.trim(),
+                passport: document.getElementById('passport').value.trim(),
+                date_of_birth: document.getElementById('date_of_birth').value
+            };
+            
+            // Блокировка кнопки и показ индикатора загрузки
+            submitBtn.disabled = true;
+            spinner.style.display = 'block';
+            resultDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/cos/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                // Отображение результата
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result';
+                
+                if (data.verified) {
+                    if (data.full_match) {
+                        resultDiv.classList.add('success');
+                        resultDiv.innerHTML = `
+                            <h3>✅ Подтверждено!</h3>
+                            <p>${data.message}</p>
+                            <p><strong>Спонсор:</strong> ${data.sponsor_name}</p>
+                            <p><strong>Номер CoS:</strong> ${data.cos_number}</p>
+                        `;
+                    } else {
+                        resultDiv.classList.add('warning');
+                        resultDiv.innerHTML = `
+                            <h3>⚠️ Частичное совпадение</h3>
+                            <p>${data.message}</p>
+                            <p><strong>Спонсор:</strong> ${data.sponsor_name}</p>
+                            <p>Рекомендуем проверить все данные ещё раз.</p>
+                        `;
+                    }
+                } else {
+                    resultDiv.classList.add('danger');
+                    resultDiv.innerHTML = `
+                        <h3>❌ Не подтверждено</h3>
+                        <p>${data.message}</p>
+                        ${data.warning ? `<p><strong>${data.warning}</strong></p>` : ''}
+                        <p><strong>Не отправляйте деньги мошенникам!</strong></p>
+                    `;
+                }
+                
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.classList.add('danger');
+                resultDiv.innerHTML = `
+                    <h3>❌ Ошибка</h3>
+                    <p>Произошла ошибка при проверке. Попробуйте позже.</p>
+                `;
+            } finally {
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
